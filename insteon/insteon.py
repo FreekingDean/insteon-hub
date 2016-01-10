@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 
-from urllib import urlencode
+from urllib.parse import urlencode
 import json
 import sys
 import requests
@@ -19,7 +19,7 @@ class APIError(Exception):
         self.data = data
 
 class Insteon(object):
-    def __init__(self, username, password, client_id, 
+    def __init__(self, username, password, client_id,
                     access_token=None, access_token_cache_file=None,
                     user_agent='LibPyInsteon/0.1'):
         self.client_id = client_id;
@@ -40,7 +40,7 @@ class Insteon(object):
 
         self.refresh_houses()
         self.refresh_devices()
-        
+
     def _login(self, username, password, client_id):
         '''Login and return the JSON authentication packet'''
         data = {
@@ -55,7 +55,7 @@ class Insteon(object):
 
     def _api_get(self, url,
                     parameters = '',
-                    content_type="application/json", 
+                    content_type="application/json",
                 ):
         '''Perform Get Request authentication packet'''
         headers={"Content-Type": content_type,
@@ -64,7 +64,7 @@ class Insteon(object):
         }
         if parameters != '':
             parameter_string = ''
-            for k,v in parameters.iteritems():
+            for k,v in parameters.items():
                 parameter_string += '{}={}'.format(k,v)
                 parameter_string += '&'
             url += '?' + parameter_string
@@ -76,8 +76,8 @@ class Insteon(object):
             return data
 
     def _api_post(self, url,
-                    data = {}, 
-                    content_type="application/json", 
+                    data = {},
+                    content_type="application/json",
                 ):
         '''Perform Get Request authentication packet'''
         data = json.dumps(data)
@@ -111,16 +111,16 @@ class Insteon(object):
             raise APIError(data)
         else:
             return data
-      
+
     def _api_delete(self, url,
-                    data = {}, 
-                    content_type="application/json", 
+                    data = {},
+                    content_type="application/json",
                 ):
         pass
 
     def refresh_accounts(self):
         pass
-        
+
     def refresh_houses(self):
         '''Queries hub for list of houses, and creates new house objects'''
         try:
@@ -128,10 +128,10 @@ class Insteon(object):
             for house_data in response['HouseList']:
                 self.houses.append(House(house_data, self))
         except APIError as e:
-            print "API error: "
+            print("API error: ")
             for key,value in e.data.iteritems:
-                print str(key) + ": " + str(value)
-        
+                print(str(key) + ": " + str(value))
+
     def refresh_devices(self):
         '''Queries hub for list of devices, and creates new device objects'''
         try:
@@ -139,10 +139,10 @@ class Insteon(object):
             for device_data in response['DeviceList']:
                 self.devices.append(Device(device_data, self))
         except APIError as e:
-            print "API error: "
+            print("API error: ")
             for key,value in e.data.iteritems:
-                print str(key) + ": " + str(value)
-    
+                print(str(key) + ": " + str(value))
+
     def create_house(self):
         pass
 
@@ -163,12 +163,12 @@ class House(object):
         '''Query hub and refresh all properties of a house'''
         try:
             data = self.api_iface._api_get("/api/v2/houses/" + str(self.HouseID))
-            print data
+            print(data)
             self._update_details(data)
         except APIError as e:
-            print "API error: "
+            print("API error: ")
             for key,value in e.data.iteritems:
-                print str(key) + ": " + str(value)
+                print(str(key) + ": " + str(value))
 
     def _update_details(self,data):
         '''Intakes dict of details, and sets necessary properties
@@ -203,9 +203,9 @@ class House(object):
             response = self.api_iface._api_put(url, data)
             return response
         except APIError as e:
-            print "API error: "
-            for key,value in e.data.iteritems():
-                print str(key) + ": " + str(value)
+            print("API error: ")
+            for key,value in e.data.items():
+                print(str(key) + ": " + str(value))
 
     @property
     def HouseName(self):
@@ -294,11 +294,11 @@ class House(object):
     @property
     def HouseID(self):
         return self._HouseID
-    
+
     @property
     def IconID(self):
         return self._IconID
-        
+
     def delete(self):
         pass
 
@@ -308,15 +308,15 @@ class Device(object):
         self._update_details(data)
 
     def refresh_details(self):
-        '''Query hub and refresh all details of a device, 
-        but NOT status, includes grouplist not present in 
+        '''Query hub and refresh all details of a device,
+        but NOT status, includes grouplist not present in
         refresh_all_devices'''
         try:
             return self.api_iface._api_get("/api/v2/devices/" + str(self.device_id))
         except APIError as e:
-            print "API error: "
+            print("API error: ")
             for key,value in e.data.iteritems:
-                print str(key) + ": " + str(value)
+                print(str(key) + ": " + str(value))
 
     def send_command(self, command):
         '''Send a command to a device'''
@@ -325,10 +325,10 @@ class Device(object):
             response = self.api_iface._api_post("/api/v2/commands", data)
             return Command(response, self)
         except APIError as e:
-            print "API error: "
+            print("API error: ")
             for key,value in e.data.iteritems:
-                print str(key) + ": " + str(value)
-        
+                print(str(key) + ": " + str(value))
+
     def _update_details(self,data):
         '''Intakes dict of details, and sets necessary properties
         in device'''
@@ -380,9 +380,9 @@ class Command(object):
             data = self.api_iface._api_get(self.link)
             self._update_details(data)
         except APIError as e:
-            print "API error: "
+            print("API error: ")
             for key,value in e.data.iteritems:
-                print str(key) + ": " + str(value)
+                print(str(key) + ": " + str(value))
 
     @property
     def json(self):
