@@ -9,7 +9,7 @@ def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 setup(
-    name = "insteon hub cloud API",
+    name = "insteon_hub",
     version = "0.0.1",
     author = "Dean Galvin",
     author_email = "deangalvin3@gmail.com",
@@ -18,7 +18,7 @@ setup(
     keywords = "insteon hub cloud",
     url = "https://github.com/FreekingDean/insteon-hub",
     packages=['insteon'],
-    long_description=read('README'),
+    long_description=read('README.md'),
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Topic :: Home Automation",
