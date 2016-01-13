@@ -4,9 +4,8 @@ from urllib.parse import urlencode
 import json
 import sys
 import requests
-#import module
-
-API_URL = "https://connect.insteon.com"
+from .authorization import InsteonAuthorizer
+from .version import API_URL
 
 class APIError(Exception):
     """API Error Response
@@ -20,13 +19,12 @@ class APIError(Exception):
 
 class Insteon(object):
     def __init__(self, username, password, client_id,
-                    access_token=None, access_token_cache_file=None,
-                    user_agent='LibPyInsteon/0.1'):
+                    access_token=None, user_agent='LibPyInsteon/0.1'):
+
         self.client_id = client_id;
-        if access_token == None:
-            self._login(username, password, client_id)
-        else:
-            self.auth = {'access_token': access_token}
+        self.authorizer = InsteonAuthorizer(client_id)
+        self.authorizer.authorize(username, password)
+
         # Create empty lists for objects
         self.accounts = []
         self.houses = []
@@ -40,18 +38,6 @@ class Insteon(object):
 
         self.refresh_houses()
         self.refresh_devices()
-
-    def _login(self, username, password, client_id):
-        '''Login and return the JSON authentication packet'''
-        data = {
-            'grant_type':'password',
-            'username':username,
-            'password':password,
-            'client_id':client_id
-        }
-        headers = {"Content-Type": "application/x-www-form-urlencoded"}
-        response = requests.post(API_URL + '/api/v2/oauth2/token', data=data, headers=headers)
-        self.auth = response.json()
 
     def _api_get(self, url,
                     parameters = '',
