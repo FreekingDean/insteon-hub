@@ -2,7 +2,7 @@ from urllib.parse import urlencode
 import json
 import sys
 import requests
-from .version import VERSION, API_URL
+from .version import VERSION
 
 class InsteonAuthorizer(object):
     auth = None

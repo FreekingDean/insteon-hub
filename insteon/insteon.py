@@ -1,5 +1,9 @@
 # -*- coding:utf-8 -*-
 
+from urllib.parse import urlencode
+import json
+import sys
+import requests
 from .authorization import InsteonAuthorizer
 
 class APIError(Exception):
@@ -33,74 +37,6 @@ class Insteon(object):
 
         self.refresh_houses()
         self.refresh_devices()
-
-    def _api_get(self, url,
-                    parameters = '',
-                    content_type="application/json",
-                ):
-        '''Perform Get Request authentication packet'''
-        headers={"Content-Type": content_type,
-                "Authentication": "APIKey " + self.client_id,
-                "Authorization": "Bearer " + self.authorizer.token
-        }
-        if parameters != '':
-            parameter_string = ''
-            for k,v in parameters.items():
-                parameter_string += '{}={}'.format(k,v)
-                parameter_string += '&'
-            url += '?' + parameter_string
-        response = requests.get(API_URL + url, headers=headers)
-        data = response.json()
-        if response.status_code >= 400:
-            raise APIError(data)
-        else:
-            return data
-
-    def _api_post(self, url,
-                    data = {},
-                    content_type="application/json",
-                ):
-        '''Perform Get Request authentication packet'''
-        data = json.dumps(data)
-        headers={"Content-Type": content_type,
-                "Authentication": "APIKey " + self.client_id,
-                "Authorization": "Bearer " + self.auth['access_token']
-        }
-        response = requests.post(API_URL + url, data=data, headers=headers)
-        data = response.json()
-        if response.status_code >= 400:
-            raise APIError(data)
-        else:
-            return data
-
-    def _api_put(self, url,
-                    data = {}, 
-                    content_type="application/json", 
-                ):
-        '''Perform Put Request authentication packet'''
-        data = json.dumps(data)
-        headers={"Content-Type": content_type,
-                "Authentication": "APIKey " + self.client_id,
-                "Authorization": "Bearer " + self.auth['access_token']
-        }
-        response = requests.put(API_URL + url, data=data, headers=headers)
-        if response.status_code == 204:
-            return True
-        else:
-            data = response.json()
-        if response.status_code >= 400:
-            raise APIError(data)
-        else:
-            return data
-
-    def _api_delete(self, url,
-                    data = {},
-                    content_type="application/json",
-                ):
-        pass
-
-    def refresh_accounts(self):
-        pass
 
     def refresh_houses(self):
         '''Queries hub for list of houses, and creates new house objects'''
