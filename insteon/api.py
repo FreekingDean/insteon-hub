@@ -5,10 +5,21 @@ import requests
 
 API_URL = "https://connect.insteon.com"
 
+class APIError(Exception):
+    """API Error Response
+
+    Attributes:
+        msg -- the error message
+        code -- the error code
+    """
+    def __init__(self, data):
+        self.data = data
+
 class InsteonAPI(object):
-    def __init__(self, authorizer, user_agent):
+    def __init__(self, authorizer, client_id, user_agent):
         self.authorizer = authorizer
         self.user_agent = user_agent
+        self.client_id = client_id
 
     def get(self, path, parameters = ''):
         '''Perform GET Request'''
@@ -18,26 +29,23 @@ class InsteonAPI(object):
             for k,v in parameters.items():
                 parameter_string += '{}={}'.format(k,v)
                 parameter_string += '&'
-            url += '?' + parameter_string
+            path += '?' + parameter_string
 
-        response = requests.get(API_URL + url, headers=_set_headers()
-        data = response.json()
-        return _check_response(data)
+        response = requests.get(API_URL + path, headers=self._set_headers())
+        return self._check_response(response)
 
     def post(self, path, data={}):
         '''Perform POST Request '''
 
-        response = requests.post(API_URL + url, data=json.dumps(data), headers=_set_headers())
-        data = response.json()
-        return _check_response(data)
+        response = requests.post(API_URL + path, data=json.dumps(data), headers=self._set_headers())
+        return self._check_response(response)
 
-    def put(self, url, data={}):
+    def put(self, path, data={}):
         '''Perform PUT Request'''
-        response = requests.put(API_URL + url, data=json.dumps(data), headers=setup_headers())
-        data = response.json()
-        return _check_response(data)
+        response = requests.put(API_URL + path, data=json.dumps(data), headers=setup_headers())
+        return self._check_response(response)
 
-    def delete(self, url, parameters={}):
+    def delete(self, path, parameters={}):
         '''Perform GET Request'''
 
         if parameters != '':
@@ -45,13 +53,12 @@ class InsteonAPI(object):
             for k,v in parameters.items():
                 parameter_string += '{}={}'.format(k,v)
                 parameter_string += '&'
-            url += '?' + parameter_string
+            path += '?' + parameter_string
 
-        response = requests.delete(API_URL + url, headers=_set_headers()
-        data = response.json()
-        return _check_response(data)
+        response = requests.delete(API_URL + path, headers=self._set_headers())
+        return self._check_response(response)
 
-    def _check_response(self):
+    def _check_response(self, response):
         if response.status_code >= 400:
             raise APIError(data)
 
@@ -60,7 +67,7 @@ class InsteonAPI(object):
 
         return response.json()
 
-    def _setup_headers(self):
+    def _set_headers(self):
         return {
                 "Content-Type": "application/json",
                 "Authentication": "APIKey " + self.client_id,
@@ -68,7 +75,7 @@ class InsteonAPI(object):
             }
 
     @classmethod
-    def unauth_post(cls, path, data)
+    def unauth_post(cls, path, data):
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
         response = requests.post(API_URL + '/api/v2/oauth2/token', data=data, headers=headers)
-        self.auth = response.json()
+        return response.json()

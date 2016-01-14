@@ -5,24 +5,16 @@ import json
 import sys
 import requests
 from .authorization import InsteonAuthorizer
-
-class APIError(Exception):
-    """API Error Response
-
-    Attributes:
-        msg -- the error message
-        code -- the error code
-    """
-    def __init__(self, data):
-        self.data = data
+from .api import InsteonAPI, APIError
+from .version import VERSION
 
 class Insteon(object):
     def __init__(self, username, password, client_id,
-                access_token=None, user_agent='LibPyInsteon/0.1'):
+                user_agent='insteon_hub/%s' % VERSION):
 
-        self.client_id = client_id;
         self.authorizer = InsteonAuthorizer(client_id)
         self.authorizer.authorize(username, password)
+        self.api = InsteonAPI(self.authorizer, client_id, user_agent)
 
         # Create empty lists for objects
         self.accounts = []
@@ -41,7 +33,7 @@ class Insteon(object):
     def refresh_houses(self):
         '''Queries hub for list of houses, and creates new house objects'''
         try:
-            response = self._api_get("/api/v2/houses", {'properties':'all'})
+            response = self.api.get("/api/v2/houses", {'properties':'all'})
             for house_data in response['HouseList']:
                 self.houses.append(House(house_data, self))
         except APIError as e:
@@ -52,7 +44,7 @@ class Insteon(object):
     def refresh_devices(self):
         '''Queries hub for list of devices, and creates new device objects'''
         try:
-            response = self._api_get("/api/v2/devices", {'properties':'all'})
+            response = self.api.get("/api/v2/devices", {'properties':'all'})
             for device_data in response['DeviceList']:
                 self.devices.append(Device(device_data, self))
         except APIError as e:
@@ -167,7 +159,7 @@ class House(object):
     @property
     def HubType(self):
         return self._HubType
-        
+
     @property
     def HubUsername(self):
         return self._HubUsername
