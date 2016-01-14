@@ -1,11 +1,6 @@
 # -*- coding:utf-8 -*-
 
-from urllib.parse import urlencode
-import json
-import sys
-import requests
 from .authorization import InsteonAuthorizer
-from .version import API_URL
 
 class APIError(Exception):
     """API Error Response
@@ -19,7 +14,7 @@ class APIError(Exception):
 
 class Insteon(object):
     def __init__(self, username, password, client_id,
-                    access_token=None, user_agent='LibPyInsteon/0.1'):
+                access_token=None, user_agent='LibPyInsteon/0.1'):
 
         self.client_id = client_id;
         self.authorizer = InsteonAuthorizer(client_id)
@@ -46,7 +41,7 @@ class Insteon(object):
         '''Perform Get Request authentication packet'''
         headers={"Content-Type": content_type,
                 "Authentication": "APIKey " + self.client_id,
-                "Authorization": "Bearer " + self.auth['access_token']
+                "Authorization": "Bearer " + self.authorizer.token
         }
         if parameters != '':
             parameter_string = ''

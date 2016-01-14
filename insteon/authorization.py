@@ -21,28 +21,26 @@ class InsteonAuthorizer(object):
     def _login(self, username, password):
         '''Login and return the JSON authentication packet'''
 
-        data = {
+        response = InsteonAPI.unauth_post('/api/v2/oauth2/token', {
             'grant_type':   'password',
             'username':     username,
             'password':     password,
             'client_id':    self.client_id
-        }
-
-        headers = {"Content-Type": "application/x-www-form-urlencoded"}
-        response = requests.post(API_URL + '/api/v2/oauth2/token', data=data, headers=headers)
-        self.auth = response.json()
-        print(self.auth)
+        })
+        self._set_auth(response)
 
     def _refresh(self):
         '''Refresh the auth token'''
 
-        data = {
+        response = InsteonAPI.unauth_post('/api/v2/oauth2/token', {
             'grant_type':    'refresh_token',
             'refresh_token': self.auth['refresh_token'],
             'client_id':     self.client_id
-        }
+        })
+        self._set_auth(response)
 
-        headers = {"Content-Type": "application/x-www-form-urlencoded"}
-        response = requests.post(API_URL + '/api/v2/oauth2/token', data=data, headers=headers)
-        self.auth = response.json()
-        print(self.auth)
+    def _set_auth(self, auth_response):
+        self.access_token   = auth_response['access_token']
+        self.refresh_token  = auth_response['refresh_token']
+        self.expiry         = auth_response['expires_in']*60 '''convert to seconds to use epoch seconds'''
+        self.last_auth      = time.time()
