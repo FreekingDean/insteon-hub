@@ -2,12 +2,16 @@ from .api import InsteonResource
 
 class House(InsteonResource):
     resource_name="houses"
-    def __init__(self, data):
+    def __init__(self, api, data):
+        self._settables = (
+            'InsteonHubID', 'HouseName', 'City', 'DHCP', 'DaylightSavings'
+        )
         self._properties = (
             'InsteonHubID','HouseName','City','DHCP','DaylightSavings',
             'HubType','HubUsername','HubPassword','IP','Port','Gateway',
             'Mask','Mac','BinVer','PLMVer','FirmwareVer','HouseID','IconID'
         )
+        self._resource_id = 'HouseID'
         self._update_details(data)
 
 

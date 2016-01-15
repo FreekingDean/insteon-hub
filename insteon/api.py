@@ -82,12 +82,13 @@ class InsteonAPI(object):
 
 class InsteonResource(object):
     base_path="/api/v2/"
-    def __init__(self):
+    def __init__(self, api):
+        self.api_iface = api
 
-    def refresh_details(self):
+    def reload(self):
         #Query hub and refresh all properties
         try:
-            data = self.api_iface.get(self.base_path+ self.resource_name + "/" + str(self.id))
+            data = self.api_iface.get(self.base_path+ self.resource_name + "/" + str(self.resource_id))
             self._update_details(data)
         except APIError as e:
             print("API error: ")
@@ -95,18 +96,12 @@ class InsteonResource(object):
                 print(str(key) + ": " + str(value))
 
     def _update_details(self,data):
-        #Intakes dict of details, and sets necessary properties
-        in device'''
+        #Intakes dict of details, and sets necessary properties in device
         for api_name in self._properties:
             if api_name in data:
                 setattr(self, "_" + api_name, data[api_name])
-            # Use setter if exists, else set variable
-            # Not sure if we want this, how do we distinguish 
-            # initialize versus set
-            #try:
-            #    getattr(House, api_name).__set__(self, data[api_name])
-            #except AttributeError:
-            #    setattr(self, "_" + api_name, data[api_name])
+
+    def save(self,
 
     @property
     def json(self):
