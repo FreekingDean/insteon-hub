@@ -6,6 +6,7 @@ import sys
 import requests
 from .authorization import InsteonAuthorizer
 from .api import InsteonAPI, APIError
+from .house import House
 from .version import VERSION
 
 class Insteon(object):
@@ -28,14 +29,15 @@ class Insteon(object):
         self.commands = []
 
         self.refresh_houses()
-        self.refresh_devices()
+        #self.refresh_devices()
 
     def refresh_houses(self):
         '''Queries hub for list of houses, and creates new house objects'''
         try:
             response = self.api.get("/api/v2/houses", {'properties':'all'})
             for house_data in response['HouseList']:
-                self.houses.append(House(house_data, self.api))
+                print(house_data)
+                self.houses.append(House(self.api, house_data['HouseID'], house_data))
         except APIError as e:
             print("API error: ")
             for key,value in e.data.iteritems:

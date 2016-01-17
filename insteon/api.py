@@ -82,26 +82,54 @@ class InsteonAPI(object):
 
 class InsteonResource(object):
     base_path="/api/v2/"
-    def __init__(self, api):
-        self.api_iface = api
+    def __init__(self, api, resource_id=None, data=None):
+        self._resource_id = resource_id
+        if data:
+            self._update_details(data)
+        else:
+            self.reload_details
 
-    def reload(self):
+    def __getattr__(self, name):
+        if name in self._properties:
+            return getattr(self, "_"+name)
+        else:
+            raise AttributeError
+
+    def __setattr__(self, name, value):
+        if name in self._properties:
+            if name in self._settables:
+                self.__dict__["_"+name] = value
+            else:
+                raise "Property not settable"
+        else:
+            self.__dict__[name] = value
+
+    def _update_details(self, data):
+        #Intakes dict of details, and sets necessary properties in device
+        for api_name in self._properties:
+            if api_name in data:
+                setattr(self, "_" + api_name, data[api_name])
+
+    def reload_details(self):
         #Query hub and refresh all properties
         try:
-            data = self.api_iface.get(self.base_path+ self.resource_name + "/" + str(self.resource_id))
+            data = self._api_iface.get(self.base_path+ self.resource_name + "/" + str(self._resource_id))
             self._update_details(data)
         except APIError as e:
             print("API error: ")
             for key,value in e.data.iteritems:
                 print(str(key) + ": " + str(value))
 
-    def _update_details(self,data):
-        #Intakes dict of details, and sets necessary properties in device
-        for api_name in self._properties:
-            if api_name in data:
-                setattr(self, "_" + api_name, data[api_name])
-
-    def save(self,
+    def save(self):
+        data = {}
+        for settable_name in self._settables:
+            data[settable_name] = getattr(self, settable_name)
+        try:
+            return self._api_iface.put(base_path + resource_name + "/" + str(self._resource_id))
+        except APIError as e:
+            print("API error: ")
+            for key,value in e.data.items():
+                print(str(key) + ": " + str(value))
 
     @property
     def json(self):
@@ -109,4 +137,3 @@ class InsteonResource(object):
         for attribute in self._properties:
             json_data[attribute] = getattr(self, "_" + attribute)
         return json.dumps(json_data)
-
