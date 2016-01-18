@@ -36,7 +36,6 @@ class InsteonAPI(object):
 
     def post(self, path, data={}):
         '''Perform POST Request '''
-
         response = requests.post(API_URL + path, data=json.dumps(data), headers=self._set_headers())
         return self._check_response(response)
 
@@ -82,7 +81,22 @@ class InsteonAPI(object):
 
 class InsteonResource(object):
     base_path="/api/v2/"
+
+    def all(cls, api):
+        resources = []
+        try:
+            response = api.get(cls.base_path + cls.resource_name, {'properties':'all'})
+            for data in response[cls.resource_name[:-1].title()+"List"]:
+                resources.append(cls(api, data[cls.resource_name[:-1].title()+"ID"], data))
+            return resources
+        except APIError as e:
+            print("API error: ")
+            for key,value in e.data.iteritems:
+                print(str(key) + ": " + str(value))
+
     def __init__(self, api, resource_id=None, data=None):
+        for data_key in self._properties:
+            setattr(self, "_" + data_key, None)
         self._resource_id = resource_id
         if data:
             self._update_details(data)

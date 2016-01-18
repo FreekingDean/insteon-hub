@@ -6,7 +6,7 @@ import sys
 import requests
 from .authorization import InsteonAuthorizer
 from .api import InsteonAPI, APIError
-from .house import House
+from .resources import House, Account, Contact, Device
 from .version import VERSION
 
 class Insteon(object):
@@ -18,30 +18,18 @@ class Insteon(object):
         self.api = InsteonAPI(self.authorizer, client_id, user_agent)
 
         # Create empty lists for objects
-        self.accounts = []
-        self.houses = []
-        self.devices = []
-        self.cameras = []
-        self.scenes = []
-        self.rooms = []
-        self.contacts = []
-        self.alerts = []
-        self.commands = []
+        self.accounts = Account.all(Account, self.api)
+        self.houses = House.all(House, self.api)
+        self.devices = Device.all(Device, self.api)
+        #self.cameras = []
+        #self.scenes = []
+        #self.rooms = []
+        self.contacts = Contact.all(Contact, self.api)
+        #self.alerts = []
+        #self.commands = []
 
-        self.refresh_houses()
+        #self.refresh_houses()
         #self.refresh_devices()
-
-    def refresh_houses(self):
-        '''Queries hub for list of houses, and creates new house objects'''
-        try:
-            response = self.api.get("/api/v2/houses", {'properties':'all'})
-            for house_data in response['HouseList']:
-                print(house_data)
-                self.houses.append(House(self.api, house_data['HouseID'], house_data))
-        except APIError as e:
-            print("API error: ")
-            for key,value in e.data.iteritems:
-                print(str(key) + ": " + str(value))
 
     def refresh_devices(self):
         '''Queries hub for list of devices, and creates new device objects'''
@@ -54,14 +42,7 @@ class Insteon(object):
             for key,value in e.data.iteritems:
                 print(str(key) + ": " + str(value))
 
-    def create_house(self):
-        pass
-
-class Account(object):
-    pass
-
-
-class Device(object):
+class DeviceP(object):
     def __init__(self, data, api_iface):
         self.api_iface = api_iface
         self._update_details(data)
@@ -95,21 +76,6 @@ class Device(object):
         self.device_id = data['DeviceID']
         self.device_name = data['DeviceName']
         self.properties = data
-
-class Camera(object):
-    pass
-
-class Scene(object):
-    pass
-
-class Room(object):
-    pass
-
-class Contact(object):
-    pass
-
-class Alert(object):
-    pass
 
 class Command(object):
     def __init__(self, data, device):
