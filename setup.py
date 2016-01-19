@@ -9,8 +9,8 @@ def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 setup(
-    name = "insteon_hub",
-    version = "0.2.0",
+    name = "insteon-hub",
+    version = "0.2.1",
     author = "Dean Galvin",
     author_email = "deangalvin3@gmail.com",
     description = ("A python package that interacts with the Insteon Hub Cloud API"),
