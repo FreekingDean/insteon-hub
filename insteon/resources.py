@@ -1,4 +1,4 @@
-from .api import InsteonResource
+from .api import InsteonResource, InsteonCommandable
 
 class House(InsteonResource):
     resource_name="houses"
@@ -32,7 +32,7 @@ class Contact(InsteonResource):
         'ContactName', 'NotifyTo', 'ContactType', 'Prefered'
     )
 
-class Device(InsteonResource):
+class Device(InsteonCommandable):
     resource_name="devices"
     _settables = (
         'HouseID', 'DeviceName', 'InsteonID', 'FirmwareVersion', 'OnTime', 'OffTime',
@@ -41,7 +41,7 @@ class Device(InsteonResource):
         'LEDLevel', 'AlertsEnabled', 'AlertOn', 'AlertOff', 'Favorite', 'Humidity', 'DayMask',
         'LinkWithHub', 'BeepOnPress', 'LocalProgramLock', 'BlinkOnTraffic', 'ErrorBlink',
         'ConfiguredGroups', 'InsteonEngine', 'SerialNumber', 'Manufacturer', 'ProductType',
-        'User', 'UserID', 'AccessToken', 'IpAddress', 'Port', 'GroupList'
+        'User', 'UserID', 'AccessToken', 'IpAddress', 'Port', 'GroupList', 'DeviceID'
     )
     _properties = (
         'HouseID', 'DeviceName', 'InsteonID', 'FirmwareVersion', 'OnTime', 'OffTime',
@@ -50,5 +50,5 @@ class Device(InsteonResource):
         'LEDLevel', 'AlertsEnabled', 'AlertOn', 'AlertOff', 'Favorite', 'Humidity', 'DayMask',
         'LinkWithHub', 'BeepOnPress', 'LocalProgramLock', 'BlinkOnTraffic', 'ErrorBlink',
         'ConfiguredGroups', 'InsteonEngine', 'SerialNumber', 'Manufacturer', 'ProductType',
-        'User', 'UserID', 'AccessToken', 'IpAddress', 'Port', 'GroupList'
+        'User', 'UserID', 'AccessToken', 'IpAddress', 'Port', 'GroupList', 'DeviceID'
     )

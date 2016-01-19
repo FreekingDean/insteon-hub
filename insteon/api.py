@@ -2,6 +2,7 @@ from urllib.parse import urlencode
 import json
 import sys
 import requests
+import time
 
 API_URL = "https://connect.insteon.com"
 
@@ -59,7 +60,7 @@ class InsteonAPI(object):
 
     def _check_response(self, response):
         if response.status_code >= 400:
-            raise APIError(data)
+            raise APIError(response.json())
 
         if response.status_code == 204:
             return True
@@ -98,6 +99,7 @@ class InsteonResource(object):
         for data_key in self._properties:
             setattr(self, "_" + data_key, None)
         self._resource_id = resource_id
+        self._api_iface = api
         if data:
             self._update_details(data)
         else:
@@ -107,6 +109,7 @@ class InsteonResource(object):
         if name in self._properties:
             return getattr(self, "_"+name)
         else:
+            print(name)
             raise AttributeError
 
     def __setattr__(self, name, value):
@@ -128,6 +131,7 @@ class InsteonResource(object):
         #Query hub and refresh all properties
         try:
             data = self._api_iface.get(self.base_path+ self.resource_name + "/" + str(self._resource_id))
+            print(data)
             self._update_details(data)
         except APIError as e:
             print("API error: ")
@@ -151,3 +155,25 @@ class InsteonResource(object):
         for attribute in self._properties:
             json_data[attribute] = getattr(self, "_" + attribute)
         return json.dumps(json_data)
+
+class InsteonCommandable(InsteonResource):
+    command_path = "commands"
+
+    def send_command(self, command, level=None, wait=False):
+        data = {
+            'device_id': getattr(self, "DeviceID"),
+            'command': command
+        }
+        if level:
+            data['level'] = level
+        try:
+            command_info = self._api_iface.post(self.base_path + self.command_path, data)
+            if wait:
+                time.sleep(1)
+                return self._api_iface.get(self.base_path + self.command_path + "/" + str(command_info['id']))
+            else:
+                return command_info
+        except APIError as e:
+            print("API error: ")
+            for key,value in e.data.iteritems:
+                print(str(key) + ": " + str(value))
