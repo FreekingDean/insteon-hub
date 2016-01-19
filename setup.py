@@ -10,7 +10,7 @@ def read(fname):
 
 setup(
     name = "insteon-hub",
-    version = "0.2.1",
+    version = "0.2.2",
     author = "Dean Galvin",
     author_email = "deangalvin3@gmail.com",
     description = ("A python package that interacts with the Insteon Hub Cloud API"),
