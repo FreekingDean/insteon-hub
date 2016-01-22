@@ -2,9 +2,6 @@ import os
 from setuptools import setup
 from insteon.version import VERSION
 
-def read(fname):
-    return open(os.path.join(os.path.dirname(__file__), fname)).read()
-
 REQUIRES = [
     'requests>=2,<3',
     'pyyaml>=3.11,<4'
@@ -21,7 +18,6 @@ setup(
     url = "https://github.com/FreekingDean/insteon-hub",
     packages=['insteon'],
     install_requires=REQUIRES,
-    long_description=read('README.md'),
     classifiers=[
         'Intended Audience :: Developers',
         "Development Status :: 3 - Alpha",
