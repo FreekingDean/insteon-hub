@@ -5,6 +5,7 @@ REQUIRES = [
     'requests>=2,<3',
     'pyyaml>=3.11,<4'
 ]
+HERE = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(HERE, PACKAGE_NAME, 'const.py')) as fp:
     VERSION = re.search("__version__ = '([^']+)'", fp.read()).group(1)
 
