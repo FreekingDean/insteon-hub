@@ -34,7 +34,7 @@ class InsteonAuthorizer(object):
 
         response = InsteonAPI.unauth_post('/api/v2/oauth2/token', {
             'grant_type':    'refresh_token',
-            'refresh_token': self.auth['refresh_token'],
+            'refresh_token': self.refresh_token,
             'client_id':     self.client_id
         })
         self._set_auth(response)

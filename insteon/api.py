@@ -22,45 +22,46 @@ class InsteonAPI(object):
         self.user_agent = user_agent
         self.client_id = client_id
 
-    def get(self, path, parameters = ''):
+    def get(self, path, data=''):
         '''Perform GET Request'''
-
-        if parameters != '':
+        if len(data) != 0:
             parameter_string = ''
-            for k,v in parameters.items():
+            for k,v in data.items():
                 parameter_string += '{}={}'.format(k,v)
                 parameter_string += '&'
             path += '?' + parameter_string
-
         response = requests.get(API_URL + path, headers=self._set_headers())
-        return self._check_response(response)
+        return self._check_response(response, self.get, path, data)
 
     def post(self, path, data={}):
         '''Perform POST Request '''
         response = requests.post(API_URL + path, data=json.dumps(data), headers=self._set_headers())
-        return self._check_response(response)
+        return self._check_response(response, self.post, path, data)
 
     def put(self, path, data={}):
         '''Perform PUT Request'''
         response = requests.put(API_URL + path, data=json.dumps(data), headers=setup_headers())
-        return self._check_response(response)
+        return self._check_response(response, self.put, path, data)
 
-    def delete(self, path, parameters={}):
-        '''Perform GET Request'''
-
-        if parameters != '':
+    def delete(self, path, data={}):
+        '''Perform DELETE Request'''
+        if len(data) != 0:
             parameter_string = ''
-            for k,v in parameters.items():
+            for k,v in data.items():
                 parameter_string += '{}={}'.format(k,v)
                 parameter_string += '&'
             path += '?' + parameter_string
 
         response = requests.delete(API_URL + path, headers=self._set_headers())
-        return self._check_response(response)
+        return self._check_response(response, self.delete, path, data)
 
-    def _check_response(self, response):
+    def _check_response(self, response, calling_method, path, data={}):
         if response.status_code >= 400:
-            raise APIError(response.json())
+            if response.status_code == 401 and response.json()['code'] == 4012:
+                self.authorizer.authorize()
+                calling_method(path, data)
+            else:
+                raise APIError(response.json())
 
         if response.status_code == 204:
             return True
