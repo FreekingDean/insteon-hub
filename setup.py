@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name = "insteon-hub",
-    version = "0.2.3",
+    version = "0.3.0",
     author = "Dean Galvin",
     author_email = "deangalvin3@gmail.com",
     description = ("A python package that interacts with the Insteon Hub Cloud API"),
