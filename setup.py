@@ -17,6 +17,7 @@ setup(
     keywords = ["insteon", "hub", "cloud"],
     url = "https://github.com/FreekingDean/insteon-hub",
     packages=['insteon'],
+    include_package_data=True,
     install_requires=REQUIRES,
     classifiers=[
         'Intended Audience :: Developers',
