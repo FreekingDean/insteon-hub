@@ -169,7 +169,7 @@ class InsteonCommandable(InsteonResource):
         try:
             command_info = self._api_iface.post(self.base_path + self.command_path, data)
             if wait:
-                time.sleep(1)
+                time.sleep(0.4)
                 return self._api_iface.get(self.base_path + self.command_path + "/" + str(command_info['id']))
             else:
                 return command_info
