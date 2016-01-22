@@ -5,12 +5,15 @@ REQUIRES = [
     'requests>=2,<3',
     'pyyaml>=3.11,<4'
 ]
+
+PACKAGE_NAME = 'insteon-hub'
+
 HERE = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(HERE, PACKAGE_NAME, 'const.py')) as fp:
     VERSION = re.search("__version__ = '([^']+)'", fp.read()).group(1)
 
 setup(
-    name = "insteon-hub",
+    name = PACKAGE_NAME,
     version = VERSION,
     author = "Dean Galvin",
     author_email = "deangalvin3@gmail.com",
