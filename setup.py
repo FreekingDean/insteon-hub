@@ -1,5 +1,6 @@
 import os
 from setuptools import setup
+from insteon.version import VERSION
 
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
@@ -11,7 +12,7 @@ REQUIRES = [
 
 setup(
     name = "insteon-hub",
-    version = "0.3.0",
+    version = VERSION,
     author = "Dean Galvin",
     author_email = "deangalvin3@gmail.com",
     description = ("A python package that interacts with the Insteon Hub Cloud API"),
