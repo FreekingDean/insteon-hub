@@ -1,11 +1,12 @@
 import os
 from setuptools import setup
-from insteon.version import VERSION
 
 REQUIRES = [
     'requests>=2,<3',
     'pyyaml>=3.11,<4'
 ]
+with open(os.path.join(HERE, PACKAGE_NAME, 'const.py')) as fp:
+    VERSION = re.search("__version__ = '([^']+)'", fp.read()).group(1)
 
 setup(
     name = "insteon-hub",

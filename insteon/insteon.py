@@ -7,11 +7,11 @@ import requests
 from .authorization import InsteonAuthorizer
 from .api import InsteonAPI, APIError
 from .resources import House, Account, Contact, Device
-from .version import VERSION
+from .const import __version__
 
 class Insteon(object):
     def __init__(self, username, password, client_id,
-                user_agent='insteon_hub/%s' % VERSION):
+                user_agent='insteon_hub/%s' % __version__):
 
         self.authorizer = InsteonAuthorizer(client_id)
         self.authorizer.authorize(username, password)
