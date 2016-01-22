@@ -9,7 +9,7 @@ REQUIRES = [
 PACKAGE_NAME = 'insteon-hub'
 
 HERE = os.path.abspath(os.path.dirname(__file__))
-with open(os.path.join(HERE, PACKAGE_NAME, 'const.py')) as fp:
+with open(os.path.join(HERE, PACKAGE_NAME.split('-')[0], 'const.py')) as fp:
     VERSION = re.search("__version__ = '([^']+)'", fp.read()).group(1)
 
 setup(
