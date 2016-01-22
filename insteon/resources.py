@@ -52,3 +52,15 @@ class Device(InsteonCommandable):
         'ConfiguredGroups', 'InsteonEngine', 'SerialNumber', 'Manufacturer', 'ProductType',
         'User', 'UserID', 'AccessToken', 'IpAddress', 'Port', 'GroupList', 'DeviceID'
     )
+
+    @property
+    def DeviceCategory(self):
+        import yaml
+        import os
+        try:
+            file_dir = os.path.dirname(os.path.realpath(__file__))
+            with open(file_dir+"/categories.yml", encoding='utf-8') as categories_file:
+                categories = yaml.load(categories_file) or {}
+        except yaml.YAMLError:
+            return "No Category"
+        return categories.get('dev_cat', {}).get(self.DevCat, "No Category")
