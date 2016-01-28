@@ -25,7 +25,7 @@ Install instructions can be found here https://pypi.python.org/pypi/insteon_hub
 
 *see [Devices](http://docs.insteon.apiary.io/#reference/devices) for other properties*
 
-### Send a commands
+### Send a command
 ```python
 >>> i.devices[0].send_command('on')
 ```
