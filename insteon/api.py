@@ -160,13 +160,15 @@ class InsteonResource(object):
 class InsteonCommandable(InsteonResource):
     command_path = "commands"
 
-    def send_command(self, command, level=None, wait=False):
+    def send_command(self, command, payload=None, wait=False):
         data = {
             'device_id': getattr(self, "DeviceID"),
             'command': command
         }
-        if level:
-            data['level'] = level
+        if payload:
+            public_props = (name for name in dir(payload) if not name.startswith('_')
+            for name in public_props:
+                data[name] = payload[name]
         try:
             command_info = self._api_iface.post(self.base_path + self.command_path, data)
             if wait:
