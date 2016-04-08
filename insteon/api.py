@@ -166,7 +166,7 @@ class InsteonCommandable(InsteonResource):
             'command': command
         }
         if payload:
-            public_props = (name for name in dir(payload) if not name.startswith('_')
+            public_props = (name for name in dir(payload) if not name.startswith('_'))
             for name in public_props:
                 data[name] = payload[name]
         try:
