@@ -171,11 +171,15 @@ class InsteonCommandable(InsteonResource):
         try:
             command_info = self._api_iface.post(self.base_path + self.command_path, data)
             if wait:
-                time.sleep(0.4)
-                return self._api_iface.get(self.base_path + self.command_path + "/" + str(command_info['id']))
-            else:
-                return command_info
+                commandId = command_info['id']
+                commandStatus = command_info['status']
+                while commandStatus == 'pending':
+                    time.sleep(0.4)
+                    command_info = self._api_iface.get(self.base_path + self.command_path + "/" + str(command_info['id']))
+                    commandStatus = command_info['status']
+        
+            print(str(command_info))
+            return command_info
         except APIError as e:
-            print("API error: ")
-            for key,value in e.data.iteritems:
-                print(str(key) + ": " + str(value))
+            print("API error: executing command " + str(command) + " on " + self.DeviceName)
+            print(vars(e))
