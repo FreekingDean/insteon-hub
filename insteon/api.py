@@ -179,7 +179,7 @@ class InsteonCommandable(InsteonResource):
                 commandStatus = command_info['status']
                 while commandStatus == 'pending':
                     time.sleep(0.4)
-                    command_info = self._api_iface.get(self.base_path + self.command_path + "/" + str(command_info['id']))
+                    command_info = self._api_iface.get(self.base_path + self.command_path + "/" + str(commandId))
                     commandStatus = command_info['status']
         
             return command_info
