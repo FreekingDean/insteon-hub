@@ -33,7 +33,7 @@ class InsteonAPI(object):
             groups = match.groups()
             protocol = groups[1]
             domain = groups[2]
-            return protocol + domain + '/'
+            return protocol + domain
         else:
             raise Exception('Url is invalid: ' + url)
 
