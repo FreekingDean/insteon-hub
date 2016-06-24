@@ -3,7 +3,9 @@ import json
 import sys
 import requests
 import time
+import re
 
+URL_REGEX_PATTERN = '^(http(?:s)?\:\/\/)((?:[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3})?(?:\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})?)(\/\S*)\/?$'
 CLOUD_API_URL = "https://connect.insteon.com"
 
 class APIError(Exception):
@@ -21,7 +23,19 @@ class InsteonAPI(object):
         self.authorizer = authorizer
         self.user_agent = user_agent
         self.client_id = client_id
-        self.endpoint = endpoint if endpoint else CLOUD_API_URL
+        self.endpoint = format_endpoint(endpoint if endpoint else CLOUD_API_URL)
+
+    @classmethod
+    def format_endpoint(url):
+        match = re.search(URL_REGEX_PATTERN, url)
+
+        if match:
+            groups = match.groups()
+            protocol = groups[1]
+            domain = groups[2]
+            return protocol + domain + '/'
+        else:
+            raise Exception('Url is invalid: ' + url)
 
     def get(self, path, data=''):
         '''Perform GET Request'''
