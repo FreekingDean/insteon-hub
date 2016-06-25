@@ -3,8 +3,10 @@ import json
 import sys
 import requests
 import time
+import re
 
-API_URL = "https://connect.insteon.com"
+URL_REGEX_PATTERN = '^(http(?:s)?\:\/\/)((?:[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3})?(?:\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})?)(\/\S*)\/?$'
+CLOUD_API_URL = "https://connect.insteon.com"
 
 class APIError(Exception):
     """API Error Response
@@ -17,10 +19,23 @@ class APIError(Exception):
         self.data = data
 
 class InsteonAPI(object):
-    def __init__(self, authorizer, client_id, user_agent):
+    def __init__(self, authorizer, client_id, user_agent, endpoint=None):
         self.authorizer = authorizer
         self.user_agent = user_agent
         self.client_id = client_id
+        self.endpoint = format_endpoint(endpoint if endpoint else CLOUD_API_URL)
+
+    @classmethod
+    def format_endpoint(url):
+        match = re.search(URL_REGEX_PATTERN, url)
+
+        if match:
+            groups = match.groups()
+            protocol = groups[1]
+            domain = groups[2]
+            return protocol + domain
+        else:
+            raise Exception('Url is invalid: ' + url)
 
     def get(self, path, data=''):
         '''Perform GET Request'''
@@ -30,17 +45,17 @@ class InsteonAPI(object):
                 parameter_string += '{}={}'.format(k,v)
                 parameter_string += '&'
             path += '?' + parameter_string
-        response = requests.get(API_URL + path, headers=self._set_headers())
+        response = requests.get(self.endpoint + path, headers=self._set_headers())
         return self._check_response(response, self.get, path, data)
 
     def post(self, path, data={}):
         '''Perform POST Request '''
-        response = requests.post(API_URL + path, data=json.dumps(data), headers=self._set_headers())
+        response = requests.post(self.endpoint + path, data=json.dumps(data), headers=self._set_headers())
         return self._check_response(response, self.post, path, data)
 
     def put(self, path, data={}):
         '''Perform PUT Request'''
-        response = requests.put(API_URL + path, data=json.dumps(data), headers=setup_headers())
+        response = requests.put(self.endpoint + path, data=json.dumps(data), headers=setup_headers())
         return self._check_response(response, self.put, path, data)
 
     def delete(self, path, data={}):
@@ -52,7 +67,7 @@ class InsteonAPI(object):
                 parameter_string += '&'
             path += '?' + parameter_string
 
-        response = requests.delete(API_URL + path, headers=self._set_headers())
+        response = requests.delete(self.endpoint + path, headers=self._set_headers())
         return self._check_response(response, self.delete, path, data)
 
     def _check_response(self, response, calling_method, path, data={}):
@@ -76,9 +91,9 @@ class InsteonAPI(object):
             }
 
     @classmethod
-    def unauth_post(cls, path, data):
+    def unauth_post(cls, path, data, endpoint=CLOUD_API_UL):
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
-        response = requests.post(API_URL + '/api/v2/oauth2/token', data=data, headers=headers)
+        response = requests.post(endpoint + '/api/v2/oauth2/token', data=data, headers=headers)
         return response.json()
 
 class InsteonResource(object):
