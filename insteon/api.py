@@ -3,8 +3,10 @@ import json
 import sys
 import requests
 import time
+import re
 
-API_URL = "https://connect.insteon.com"
+URL_REGEX_PATTERN = '^(http(?:s)?\:\/\/)((?:[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3})?(?:\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})?)(\/\S*)\/?$'
+CLOUD_API_URL = "https://connect.insteon.com"
 
 class APIError(Exception):
     """API Error Response
@@ -17,10 +19,23 @@ class APIError(Exception):
         self.data = data
 
 class InsteonAPI(object):
-    def __init__(self, authorizer, client_id, user_agent):
+    def __init__(self, authorizer, client_id, user_agent, endpoint=None):
         self.authorizer = authorizer
         self.user_agent = user_agent
         self.client_id = client_id
+        self.endpoint = format_endpoint(endpoint if endpoint else CLOUD_API_URL)
+
+    @classmethod
+    def format_endpoint(url):
+        match = re.search(URL_REGEX_PATTERN, url)
+
+        if match:
+            groups = match.groups()
+            protocol = groups[1]
+            domain = groups[2]
+            return protocol + domain
+        else:
+            raise Exception('Url is invalid: ' + url)
 
     def get(self, path, data=''):
         '''Perform GET Request'''
@@ -30,17 +45,17 @@ class InsteonAPI(object):
                 parameter_string += '{}={}'.format(k,v)
                 parameter_string += '&'
             path += '?' + parameter_string
-        response = requests.get(API_URL + path, headers=self._set_headers())
+        response = requests.get(self.endpoint + path, headers=self._set_headers())
         return self._check_response(response, self.get, path, data)
 
     def post(self, path, data={}):
         '''Perform POST Request '''
-        response = requests.post(API_URL + path, data=json.dumps(data), headers=self._set_headers())
+        response = requests.post(self.endpoint + path, data=json.dumps(data), headers=self._set_headers())
         return self._check_response(response, self.post, path, data)
 
     def put(self, path, data={}):
         '''Perform PUT Request'''
-        response = requests.put(API_URL + path, data=json.dumps(data), headers=setup_headers())
+        response = requests.put(self.endpoint + path, data=json.dumps(data), headers=setup_headers())
         return self._check_response(response, self.put, path, data)
 
     def delete(self, path, data={}):
@@ -52,7 +67,7 @@ class InsteonAPI(object):
                 parameter_string += '&'
             path += '?' + parameter_string
 
-        response = requests.delete(API_URL + path, headers=self._set_headers())
+        response = requests.delete(self.endpoint + path, headers=self._set_headers())
         return self._check_response(response, self.delete, path, data)
 
     def _check_response(self, response, calling_method, path, data={}):
@@ -76,9 +91,9 @@ class InsteonAPI(object):
             }
 
     @classmethod
-    def unauth_post(cls, path, data):
+    def unauth_post(cls, path, data, endpoint=CLOUD_API_UL):
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
-        response = requests.post(API_URL + '/api/v2/oauth2/token', data=data, headers=headers)
+        response = requests.post(endpoint + '/api/v2/oauth2/token', data=data, headers=headers)
         return response.json()
 
 class InsteonResource(object):
@@ -160,21 +175,29 @@ class InsteonResource(object):
 class InsteonCommandable(InsteonResource):
     command_path = "commands"
 
-    def send_command(self, command, level=None, wait=False):
+    def send_command(self, command, payload=None, level=None, wait=False):
         data = {
             'device_id': getattr(self, "DeviceID"),
             'command': command
         }
+        if payload:
+            for key in payload:
+                data[key] = payload[key]
+
         if level:
             data['level'] = level
+
         try:
             command_info = self._api_iface.post(self.base_path + self.command_path, data)
             if wait:
-                time.sleep(0.4)
-                return self._api_iface.get(self.base_path + self.command_path + "/" + str(command_info['id']))
-            else:
-                return command_info
+                commandId = command_info['id']
+                commandStatus = command_info['status']
+                while commandStatus == 'pending':
+                    time.sleep(0.4)
+                    command_info = self._api_iface.get(self.base_path + self.command_path + "/" + str(commandId))
+                    commandStatus = command_info['status']
+        
+            return command_info
         except APIError as e:
-            print("API error: ")
-            for key,value in e.data.iteritems:
-                print(str(key) + ": " + str(value))
+            print("API error: executing command " + str(command) + " on " + self.DeviceName)
+            print(vars(e))
