@@ -11,12 +11,11 @@ from .const import __version__
 
 class Insteon(object):
     def __init__(self, username, password, client_id,
-                user_agent='insteon_hub/%s' % __version__
-                endpoint=None):
+                user_agent='insteon_hub/%s' % __version__):
 
         self.authorizer = InsteonAuthorizer(client_id)
         self.authorizer.authorize(username, password)
-        self.api = InsteonAPI(self.authorizer, client_id, user_agent, endpoint)
+        self.api = InsteonAPI(self.authorizer, client_id, user_agent)
 
         # Create empty lists for objects
         self.accounts = Account.all(Account, self.api)
