@@ -11,7 +11,7 @@ from .const import __version__
 
 class Insteon(object):
     def __init__(self, username, password, client_id,
-                user_agent='insteon_hub/%s' % __version__,
+                user_agent='insteon_hub/%s' % __version__
                 endpoint=None):
 
         self.authorizer = InsteonAuthorizer(client_id)
