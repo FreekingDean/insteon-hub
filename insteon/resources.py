@@ -35,22 +35,19 @@ class Contact(InsteonResource):
 class Device(InsteonCommandable):
     resource_name="devices"
     _settables = (
-        'HouseID', 'DeviceName', 'InsteonID', 'FirmwareVersion', 'OnTime', 'OffTime',
-        'TimerEnabled', 'Group', 'DeviceType', 'DevCat', 'SubCat', 'AutoStatus', 'CustomOn',
-        'CustomOff', 'EnableCustomOn', 'EnableCustomOff', 'DimLevel', 'RampRate', 'OperationalFlags',
-        'LEDLevel', 'AlertsEnabled', 'AlertOn', 'AlertOff', 'Favorite', 'Humidity', 'DayMask',
-        'LinkWithHub', 'BeepOnPress', 'LocalProgramLock', 'BlinkOnTraffic', 'ErrorBlink',
-        'ConfiguredGroups', 'InsteonEngine', 'SerialNumber', 'Manufacturer', 'ProductType',
-        'User', 'UserID', 'AccessToken', 'IpAddress', 'Port', 'GroupList', 'DeviceID'
+        "AlertOff", "AlertOn", "AlertsEnabled", "AutoStatus", "CustomOff", "CustomOn", "DayMask",
+        "DevCat", "DeviceName", "DeviceType", "DimLevel", "EnableCustomOff", "EnableCustomOn",
+        "Favorite", "Group", "HouseID", "Humidity", "InsteonID", "LEDLevel", "OffTime", "OnTime",
+        "OperationFlags", "RampRate", "SubCat", "TimerEnabled", "FirmwareVersion", "Manufacturer",
+        "ProductType", "User", "UserID", "AccessToken", "AccessTokenExpiration"
     )
     _properties = (
-        'HouseID', 'DeviceName', 'InsteonID', 'FirmwareVersion', 'OnTime', 'OffTime',
-        'TimerEnabled', 'Group', 'DeviceType', 'DevCat', 'SubCat', 'AutoStatus', 'CustomOn',
-        'CustomOff', 'EnableCustomOn', 'EnableCustomOff', 'DimLevel', 'RampRate', 'OperationalFlags',
-        'LEDLevel', 'AlertsEnabled', 'AlertOn', 'AlertOff', 'Favorite', 'Humidity', 'DayMask',
-        'LinkWithHub', 'BeepOnPress', 'LocalProgramLock', 'BlinkOnTraffic', 'ErrorBlink',
-        'ConfiguredGroups', 'InsteonEngine', 'SerialNumber', 'Manufacturer', 'ProductType',
-        'User', 'UserID', 'AccessToken', 'IpAddress', 'Port', 'GroupList', 'DeviceID'
+        "HouseID", "DeviceID", "DeviceName", "InsteonID", "IconID", "DeviceType", "DevCat", "SubCat",
+        "AutoStatus", "CustomOn", "CustomOff", "EnableCustomOn", "EnableCustomOff", "DimLevel",
+        "RampRate", "OperationFlags", "LEDLevel", "AlertsEnabled", "AlertOn", "AlertOff", "Favorite",
+        "Humidity", "DayMask", "OnTime", "OffTime", "TimerEnabled", "Group", "FirmwareVersion", "LinkWithHub",
+        "BeepOnPress", "LocalProgramLock", "BlinkOnTraffic", "ConfiguredGroups", "InsteonEngine", "SerialNumber",
+        "Manufacturer", "ProductType", "User", "UserID", "AccessToken", "AccessTokenExpiration", "GroupList"
     )
 
     @property
