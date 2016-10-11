@@ -181,7 +181,6 @@ class InsteonCommandable(InsteonResource):
                     time.sleep(0.4)
                     command_info = self._api_iface.get(self.base_path + self.command_path + "/" + str(commandId))
                     commandStatus = command_info['status']
-        
             return command_info
         except APIError as e:
             print("API error: executing command " + str(command) + " on " + self.DeviceName)
