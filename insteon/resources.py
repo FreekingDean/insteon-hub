@@ -11,6 +11,11 @@ class House(InsteonResource):
         'Mask','Mac','BinVer','PLMVer','FirmwareVer','HouseID','IconID'
     )
 
+    def stream(self, auto_reconnect=False, devices_to_watch={}):
+        self._api_iface.stream(
+                self.base_path + self.resource_name + '/' + str(self._resource_id) + '/stream',
+                devices_to_watch)
+
 class Account(InsteonResource):
     resource_name="accounts"
     #TODO add DefaultAddress

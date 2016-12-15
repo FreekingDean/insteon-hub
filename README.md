@@ -30,3 +30,16 @@ Install instructions can be found here https://pypi.python.org/pypi/insteon_hub
 >>> i.devices[0].send_command('on')
 ```
 *see [Commands](http://docs.insteon.apiary.io/#reference/commands/commands-collection)*
+
+### Streaming Data
+```python
+>>> i.houses[0].stream(auto_reconnect=True, devices_to_watch=i.devices)
+```
+
+This will auto update a cached status on each device from the insteon streaming endpoint.
+It will auto reconnect every 60 seconds or so, Insteon has informed me they are
+looking to increase the timeout on that endpoint. This will *NOT* report information
+sent via API's you should either do a hard 'get_status' command every so often. It will
+cache commands sent via THIS API.
+
+*see [Streaming](http://docs.insteon.apiary.io/#reference/houses/house-device-activation-stream/retrieve-a-house-device-activation-stream)*
