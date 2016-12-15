@@ -1,5 +1,22 @@
 from .api import InsteonResource, InsteonCommandable
 
+class Scene(InsteonResource):
+    resource_name="scenes"
+    _settables = (
+        'HouseID', 'SceneName', 'StatusDevice', 'OnTime'
+        'OffTime', 'CustomOn', 'CustomOff', 'Group',
+        'IconID', 'Visible', 'Favorite', 'AutoStatus',
+        'DayMask', 'TimerEnabled', 'EnableCustomOn',
+        'EnableCustomOff', 'DeviceList'
+    )
+    _properties = (
+        'HouseID', 'SceneName', 'StatusDevice', 'OnTime'
+        'OffTime', 'CustomOn', 'CustomOff', 'Group',
+        'IconID', 'Visible', 'Favorite', 'AutoStatus',
+        'DayMask', 'TimerEnabled', 'EnableCustomOn',
+        'EnableCustomOff', 'DeviceList'
+    )
+
 class House(InsteonResource):
     resource_name="houses"
     _settables = (
