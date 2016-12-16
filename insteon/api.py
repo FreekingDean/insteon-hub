@@ -55,6 +55,38 @@ class InsteonAPI(object):
         response = requests.delete(API_URL + path, headers=self._set_headers())
         return self._check_response(response, self.delete, path, data)
 
+    def stream(self, path, devices_to_watch={}):
+        headers = self._set_headers()
+        headers['Content-Type'] = 'text/event-stream'
+        response = None
+        try:
+            while True:
+                response = requests.get(API_URL + path, headers = headers, stream=True)
+                for line in response.iter_lines():
+                    # filter out keep-alive new lines
+                    if line:
+                        decoded_line = line.decode('utf-8')
+                        payload = decoded_line.split(': ')
+                        self._handle_stream_message(payload[0], payload[1], devices_to_watch)
+        except:
+            print(e)
+            if response != None:
+                response.connection.close()
+
+    def _handle_stream_message(self, message_type, payload, devices_to_watch):
+        self.stream_message_mappings[message_type](self, payload, devices_to_watch)
+
+    def _set_stream_event(self, event_name, _):
+        self._current_stream_event = event_name
+
+    def _handle_stream_data(self, data, devices_to_watch):
+        parsed_data = json.loads(data)
+        changed_device = next([x for x in devices_to_watch if x.InsteonID == parsed_data['device_insteon_id']].__iter__(), None)
+        if changed_device != None:
+            changed_device.set_status(parsed_data['status'])
+
+    stream_message_mappings = {'event': _set_stream_event, 'data': _handle_stream_data}
+
     def _check_response(self, response, calling_method, path, data={}):
         if response.status_code >= 400:
             if response.status_code == 401 and response.json()['code'] == 4012:
@@ -101,6 +133,7 @@ class InsteonResource(object):
             setattr(self, "_" + data_key, None)
         self._resource_id = resource_id
         self._api_iface = api
+        self._cached_status = None
         if data:
             self._update_details(data)
         else:
@@ -150,6 +183,13 @@ class InsteonResource(object):
             for key,value in e.data.items():
                 print(str(key) + ": " + str(value))
 
+    def set_status(self, status):
+        self._cached_status = status
+
+    @property
+    def status(self):
+        return self._cached_status
+
     @property
     def json(self):
         json_data = {}
@@ -165,6 +205,10 @@ class InsteonCommandable(InsteonResource):
             'device_id': getattr(self, "DeviceID"),
             'command': command
         }
+
+        if command in ['on', 'off', 'fast_on', 'fast_off']:
+            self.set_status(command)
+
         if payload:
             for key in payload:
                 data[key] = payload[key]
