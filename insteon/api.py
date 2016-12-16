@@ -58,6 +58,7 @@ class InsteonAPI(object):
     def stream(self, path, devices_to_watch={}):
         headers = self._set_headers()
         headers['Content-Type'] = 'text/event-stream'
+        response = None
         try:
             while True:
                 response = requests.get(API_URL + path, headers = headers, stream=True)
@@ -67,12 +68,12 @@ class InsteonAPI(object):
                         decoded_line = line.decode('utf-8')
                         payload = decoded_line.split(': ')
                         self._handle_stream_message(payload[0], payload[1], devices_to_watch)
-
-        except APIError as e:
-            print(e)
+        except:
+            if response != None:
+                response.connection.close()
 
     def _handle_stream_message(self, message_type, payload, devices_to_watch):
-        self.stream_message_mapings[message_type](self, payload, devices_to_watch)
+        self.stream_message_mappings[message_type](self, payload, devices_to_watch)
 
     def _set_stream_event(self, event_name, _):
         self._current_stream_event = event_name
@@ -83,7 +84,7 @@ class InsteonAPI(object):
         if changed_device != None:
             changed_device.set_status(parsed_data['status'])
 
-    stream_message_mapings = {'event': _set_stream_event, 'data': _handle_stream_data}
+    stream_message_mappings = {'event': _set_stream_event, 'data': _handle_stream_data}
 
     def _check_response(self, response, calling_method, path, data={}):
         if response.status_code >= 400:
@@ -204,7 +205,7 @@ class InsteonCommandable(InsteonResource):
             'command': command
         }
 
-        if command == 'on' or command == 'off' or command == 'fast_on' or command == 'fast_off':
+        if command in ['on', 'off', 'fast_on', 'fast_off']:
             self.set_status(command)
 
         if payload:
