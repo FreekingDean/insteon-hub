@@ -69,6 +69,7 @@ class InsteonAPI(object):
                         payload = decoded_line.split(': ')
                         self._handle_stream_message(payload[0], payload[1], devices_to_watch)
         except:
+            print(e)
             if response != None:
                 response.connection.close()
 
