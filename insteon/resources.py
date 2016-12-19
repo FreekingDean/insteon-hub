@@ -16,6 +16,11 @@ class House(InsteonResource):
                 self.base_path + self.resource_name + '/' + str(self._resource_id) + '/stream',
                 devices_to_watch)
 
+    def add_stream_callback(self, device, callback):
+        self._api_iface._add_device_callback_for_stream(
+                device,
+                callback)
+
 class Account(InsteonResource):
     resource_name="accounts"
     #TODO add DefaultAddress

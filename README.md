@@ -43,3 +43,12 @@ sent via API's you should either do a hard 'get_status' command every so often. 
 cache commands sent via THIS API.
 
 *see [Streaming](http://docs.insteon.apiary.io/#reference/houses/house-device-activation-stream/retrieve-a-house-device-activation-stream)*
+
+You can also add callbacks for a stream to get instant results.
+
+```python
+>>> i.houses[0].add_stream_callback(device, callback_method)
+>>> i.houses[0].stream(auto_reconnect=True, devices_to_watch=i.devices)
+```
+
+This will send the parsed status to the `callback_method` as an argument.
