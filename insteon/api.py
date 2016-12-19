@@ -1,4 +1,5 @@
 from urllib.parse import urlencode
+from threading import Lock
 import json
 import sys
 import requests
@@ -22,6 +23,7 @@ class InsteonAPI(object):
         self.user_agent = user_agent
         self.client_id = client_id
         self._stream_device_callbacks = {}
+        self._lock = Lock()
 
     def get(self, path, data=''):
         '''Perform GET Request'''
@@ -60,7 +62,6 @@ class InsteonAPI(object):
         headers = self._set_headers()
         headers['Content-Type'] = 'text/event-stream'
         response = None
-        current_callbacks = self._stream_device_callbacks.copy()
         try:
             while True:
                 response = requests.get(API_URL + path, headers = headers, stream=True)
@@ -69,28 +70,36 @@ class InsteonAPI(object):
                     if line:
                         decoded_line = line.decode('utf-8')
                         payload = decoded_line.split(': ')
-                        self._handle_stream_message(payload[0], payload[1], devices_to_watch, current_callbacks)
-        except:
-            print('Streaming Error')
+                        self._handle_stream_message(payload[0], payload[1], devices_to_watch)
+        except Exception as e:
+            print(e)
             if response != None:
                 response.connection.close()
 
     def _add_device_callback_for_stream(self, device, callback):
-        self._stream_device_callbacks[device.DeviceID] = callback
+        self._lock.acquire()
+        try:
+            self._stream_device_callbacks[device.DeviceID] = callback
+        finally:
+            self._lock.release()
 
-    def _handle_stream_message(self, message_type, payload, devices_to_watch, callbacks):
-        self.stream_message_mappings[message_type](self, payload, devices_to_watch, callbacks)
+    def _handle_stream_message(self, message_type, payload, devices_to_watch):
+        self.stream_message_mappings[message_type](self, payload, devices_to_watch)
 
     def _set_stream_event(self, event_name, *_):
         self._current_stream_event = event_name
 
-    def _handle_stream_data(self, data, devices_to_watch, callbacks):
+    def _handle_stream_data(self, data, devices_to_watch):
         parsed_data = json.loads(data)
         changed_device = next([x for x in devices_to_watch if x.InsteonID == parsed_data['device_insteon_id']].__iter__(), None)
         if changed_device != None:
             changed_device.set_status(parsed_data['status'])
-            if changed_device.DeviceID in callbacks:
-                callbacks[changed_device.DeviceID](parsed_data['status'])
+            self._lock.acquire()
+            try:
+                if changed_device.DeviceID in self._stream_device_callbacks:
+                    self._stream_device_callbacks[changed_device.DeviceID](parsed_data['status'])
+            finally:
+                self._lock.release()
 
     stream_message_mappings = {'event': _set_stream_event, 'data': _handle_stream_data}
 
